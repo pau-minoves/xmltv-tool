@@ -7,18 +7,16 @@ channel_accumulate = dict()
 channel_count = 0
 
 def accumulate_by_date(Y,M,D):
-    if Y in stats_accumulate:
-        if M in stats_accumulate[Y]:
-            if D in stats_accumulate[Y][M]:
-                stats_accumulate[Y][M][D] += 1
-            else:
-                stats_accumulate[Y][M][D] = 1
-        else:
-            stats_accumulate[Y][M] = dict()
-            stats_accumulate[Y][M][D] = 1
-    else:
+    if Y not in stats_accumulate:
         stats_accumulate[Y] = dict()
         stats_accumulate[Y][M] = dict()
+    else:
+        if M not in stats_accumulate[Y]:
+            stats_accumulate[Y][M] = dict()
+
+    if D in stats_accumulate[Y][M]:
+        stats_accumulate[Y][M][D] += 1
+    else:
         stats_accumulate[Y][M][D] = 1
 
 def accumulate_channel(channel):
