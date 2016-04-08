@@ -33,38 +33,43 @@ def print_accumulate():
             for D in stats_accumulate[Y][M]:
                 print('\t{0} {1} {2}: {3}'.format(Y,M,D, stats_accumulate[Y][M][D]))
 
-def main(stats: ('Print stats about the files','flag','s'),
-        accumulate: ('Accumulate all input XMLTV files as if they where a single file', 'flag', 'a'),
+def do_stats(xmltv, accumulate):
+    global channel_count
+    channels = xmltv.findall('./channel')
+    programs = xmltv.findall('./programme')
+
+    for channel in channels:
+        accumulate_channel(channel)
+        channel_count += 1
+
+    for program in programs:
+        start = datetime.strptime( program.attrib['start'], '%Y%m%d%H%M%S %z')
+        accumulate_by_date(start.year, start.month, start.day)
+
+    if not accumulate:
+        print_accumulate()
+        stats_accumulate.clear()
+        channel_accumulate.clear()
+        channel_count = 0
+
+def main(stats: ('Print stats about the files instead of the resulting file','flag','i'),
+        shift_dates: ('Shift the start time dates','option','s'),
+        utc: ('Normalize start time to UTC','option','u'),
+        accumulate: ('Accumulate the stats instead of printing each file separatelly. Implies -a', 'flag', 'I'),
         *xmltv_files):
     "Utility to inspect and manipulate XMLTV files"
 
-    global channel_count
 
-    for xmltv_file in xmltv_files:
-        xmltv = ET.parse(xmltv_file)
+    if accumulate: # -A implies -a
+        stats = True
 
-        channels = xmltv.findall('./channel')
-        programs = xmltv.findall('./programme')
-
-        if stats:
-            for channel in channels:
-                accumulate_channel(channel)
-                channel_count += 1
-
-            for program in programs:
-                start = datetime.strptime( program.attrib['start'], '%Y%m%d%H%M%S %z')
-                accumulate_by_date(start.year, start.month, start.day)
-
-            if not accumulate:
-                print_accumulate()
-                stats_accumulate.clear()
-        print("File not found: ")
-                channel_accumulate.clear()
-
-    if stats and accumulate:
-        print_accumulate()
-        print('Total number of channels: ' + str(channel_count))
-
+    if stats:
+        for xmltv_file in xmltv_files:
+            xmltv = ET.parse(xmltv_file)
+            do_stats(xmltv, accumulate)
+        if accumulate:
+            print_accumulate()
+            print('Total number of channels: ' + str(channel_count))
 
 if  __name__ == '__main__':
     try:
