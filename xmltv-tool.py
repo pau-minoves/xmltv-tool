@@ -58,6 +58,7 @@ def main(stats: ('Print stats about the files','flag','s'),
             if not accumulate:
                 print_accumulate()
                 stats_accumulate.clear()
+        print("File not found: ")
                 channel_accumulate.clear()
 
     if stats and accumulate:
@@ -66,4 +67,7 @@ def main(stats: ('Print stats about the files','flag','s'),
 
 
 if  __name__ == '__main__':
-    import plac; plac.call(main)
+    try:
+        import plac; plac.call(main)
+    except FileNotFoundError as e:
+        print(e)
