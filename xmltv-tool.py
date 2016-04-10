@@ -37,7 +37,7 @@ def do_print_days(xmltv):
     for Y in stats_accumulate:
         for M in stats_accumulate[Y]:
             for D in stats_accumulate[Y][M]:
-                print('\t{0} {1} {2}: {3}'.format(Y,M,D, stats_accumulate[Y][M][D]))
+                print('{0} {1} {2}: {3}'.format(Y,M,D, stats_accumulate[Y][M][D]))
 
 def do_print_channels(xmltv):
     global channel_count
@@ -48,7 +48,7 @@ def do_print_channels(xmltv):
         channel_count += 1
 
     for c in channel_accumulate:
-        print(str(c) + ' - ' + str(channel_accumulate[c]))
+        print(str(c) + ': ' + str(channel_accumulate[c]))
 
 def main(inspect: ('Print stats about the files instead of the resulting file','flag','i'),
         print_channels: ('Inspect channels.', 'flag', 'c'),
@@ -76,8 +76,6 @@ def main(inspect: ('Print stats about the files instead of the resulting file','
     if filter_channels:
         filter_channels_list = [f.strip() for f in  filter_channels.split(',')]
 
-    print(filter_channels_list)
-
     # Input
 
     xmltv = ET.parse(xmltv_files[0]).getroot()
@@ -103,11 +101,11 @@ def main(inspect: ('Print stats about the files instead of the resulting file','
 
     # Output
 
-    if print_days:
-            do_print_days(xmltv)
-
     if print_channels:
             do_print_channels(xmltv)
+
+    if print_days:
+            do_print_days(xmltv)
 
     if not print_days and not print_channels:
        print(ET.tostring(xmltv, pretty_print=True).decode('utf-8'))
