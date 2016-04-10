@@ -132,7 +132,13 @@ def main(inspect: ('print stats about the files instead of the resulting file. E
     xmltv = ET.parse(xmltv_files[0]).getroot()
     for xmltv_file in xmltv_files[1:]:
         one_xmltv = ET.parse(xmltv_file).getroot()
-        xmltv.extend(one_xmltv)
+        for elem in one_xmltv:
+            if elem.tag == 'programme':
+                xmltv.append(elem)
+            if elem.tag == 'channel':
+                print('channel!')
+                if not xmltv.findall('./channel[@id="{0}"]'.format(elem.attrib['id'])):
+                    xmltv.append(elem)
 
     # Process
 
