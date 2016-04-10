@@ -53,8 +53,9 @@ def do_print_channels(xmltv):
 def main(inspect: ('Print stats about the files instead of the resulting file','flag','i'),
         print_channels: ('Inspect channels.', 'flag', 'c'),
         print_days: ('Inspect dates.', 'flag', 'd'),
-        shift_dates: ('Shift the start time dates','option','s'),
-        utc: ('Normalize start time to UTC','option','u'),
+        filter_channels: ('Filter by channels id (comma separated)', 'option', 'C'),
+        shift_time: ('Shift the start time dates','option','s'),
+        utc: ('Normalize start time to UTC','flag','u'),
         *xmltv_files):
     """
     Utility to inspect and manipulate XMLTV files.
@@ -64,11 +65,18 @@ def main(inspect: ('Print stats about the files instead of the resulting file','
     Input files are merged into one before processing.
     """
 
+    filter_channels_list = None
+
     # Parameters
 
     if inspect:
         print_channels = True
         print_days = True
+
+    if filter_channels:
+        filter_channels_list = [f.strip() for f in  filter_channels.split(',')]
+
+    print(filter_channels_list)
 
     # Input
 
@@ -79,6 +87,19 @@ def main(inspect: ('Print stats about the files instead of the resulting file','
 
     # Process
 
+    if filter_channels:
+        for channel_elem in xmltv.findall('./channel'):
+            if 'id' in channel_elem.attrib:
+                if channel_elem.attrib['id'] not in filter_channels_list:
+                    xmltv.remove(channel_elem)
+            else:
+                print('WARNING: channel element without id ' + channel_elem.tostring())
+        for programme_elem in xmltv.findall('./programme'):
+            if 'channel' in programme_elem.attrib:
+                if programme_elem.attrib['channel'] not in filter_channels_list:
+                    xmltv.remove(programme_elem)
+            else:
+                print('WARNING: programme element without id ' + programme_elem.tostring())
 
     # Output
 
