@@ -14,16 +14,16 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -i, --inspect         Print stats about the files instead of the resulting
+  -i, --inspect         print stats about the files instead of the resulting
                         file. Equivalent to -cd
-  -c, --print-channels  Inspect channels, implies -i.
-  -d, --print-days      Inspect dates, implies -i.
+  -c, --print-channels  inspect channels, implies -i.
+  -d, --print-days      inspect dates, implies -i.
   -C FILTER_CHANNELS, --filter-channels FILTER_CHANNELS
-                        Filter by channels id (comma separated)
+                        filter by channels id (comma separated)
   -s SHIFT_TIME_ONWARDS, --shift-time-onwards SHIFT_TIME_ONWARDS
-                        Shift the start time dates onwards. Accepts time
+                        shift the start time dates onwards. Accepts time
                         definitions as: 1d, 3M, 6y, 4w.
   -S SHIFT_TIME_BACKWARDS, --shift-time-backwards SHIFT_TIME_BACKWARDS
-                        Shift the start time dates backwards. Accepts time
+                        shift the start time dates backwards. Accepts time
                         definitions as --shift-time-onwards.
-  -u, --utc             Normalize start time to UTC
+  -u, --utc             normalize start time to UTC
