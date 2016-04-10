@@ -66,20 +66,20 @@ def do_print_channels(xmltv):
 
     # print("Total number of channels: " +  str(len(channel_accumulate)))
 
-def main(inspect: ('Print stats about the files instead of the resulting file','flag','i'),
-        print_channels: ('Inspect channels.', 'flag', 'c'),
-        print_days: ('Inspect dates.', 'flag', 'd'),
-        filter_channels: ('Filter by channels id (comma separated)', 'option', 'C'),
-        shift_time_onwards: ('Shift the start time dates onwards','option','s'),
-        shift_time_backwards: ('Shift the start time dates backwards','option','S'),
-        utc: ('Normalize start time to UTC','flag','u'),
+def main(inspect: ('print stats about the files instead of the resulting file. Equivalent to -cd','flag','i'),
+        print_channels: ('inspect channels, implies -i.', 'flag', 'c'),
+        print_days: ('inspect dates, implies -i.', 'flag', 'd'),
+        filter_channels: ('filter by channels id (comma separated)', 'option', 'C'),
+        shift_time_onwards: ('shift the start time dates onwards. Accepts time definitions as: 1d, 3M, 6y, 4w.','option','s'),
+        shift_time_backwards: ('shift the start time dates backwards. Accepts time definitions as --shift-time-onwards.','option','S'),
+        utc: ('normalize start time to UTC','flag','u'),
         *xmltv_files):
     """
     Utility to inspect and manipulate XMLTV files.
 
     If -i, -c or -d are used, a summary of the input files is printed. Otherwise a resulting processed XMLTV is printed.
 
-    Input files are merged into one before processing.
+    Input files are merged into one before processing and printed as a valid merged XMLTV file.
     """
 
     filter_channels_list = None
