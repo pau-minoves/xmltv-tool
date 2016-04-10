@@ -32,11 +32,11 @@ def accumulate_by_date(Y,M,D):
     else:
         stats_accumulate[Y][M][D] = 1
 
-def accumulate_channel(channel):
-    if channel.attrib['id'] in channel_accumulate:
-        channel_accumulate[channel.attrib['id']] += 1
+def accumulate_channel(channel_id):
+    if channel_id in channel_accumulate:
+        channel_accumulate[channel_id] += 1
     else:
-        channel_accumulate[channel.attrib['id']] = 1
+        channel_accumulate[channel_id] = 1
 
 def do_print_days(xmltv):
     programs = xmltv.findall('./programme')
@@ -53,13 +53,18 @@ def do_print_days(xmltv):
 def do_print_channels(xmltv):
     global channel_count
     channels = xmltv.findall('./channel')
+    programs = xmltv.findall('./programme')
+
+    for program in programs:
+        accumulate_channel(program.attrib['channel'])
 
     for channel in channels:
-        accumulate_channel(channel)
-        channel_count += 1
+        accumulate_channel(channel.attrib['id'])
 
     for c in channel_accumulate:
         print(str(c) + ': ' + str(channel_accumulate[c]))
+
+    # print("Total number of channels: " +  str(len(channel_accumulate)))
 
 def main(inspect: ('Print stats about the files instead of the resulting file','flag','i'),
         print_channels: ('Inspect channels.', 'flag', 'c'),
