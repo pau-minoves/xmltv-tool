@@ -2,11 +2,22 @@ import plac
 #import xml.etree.ElementTree as ET
 from lxml import etree as ET
 from datetime import datetime
+from datetime import timedelta
 from yattag import indent
+import sys
 
 stats_accumulate = dict()
 channel_accumulate = dict()
 channel_count = 0
+
+def print_warning(message):
+    print('WARNING: ' + str(message), file=sys.stderr)
+
+def parse_time(time):
+    return datetime.strptime(time, '%Y%m%d%H%M%S %z')
+
+def encode_time(time):
+    return datetime.strftime(time, '%Y%m%d%H%M%S %z')
 
 def accumulate_by_date(Y,M,D):
     if Y not in stats_accumulate:
@@ -31,7 +42,7 @@ def do_print_days(xmltv):
     programs = xmltv.findall('./programme')
 
     for program in programs:
-        start = datetime.strptime( program.attrib['start'], '%Y%m%d%H%M%S %z')
+        start = parse_time(program.attrib['start'])
         accumulate_by_date(start.year, start.month, start.day)
 
     for Y in stats_accumulate:
@@ -54,7 +65,8 @@ def main(inspect: ('Print stats about the files instead of the resulting file','
         print_channels: ('Inspect channels.', 'flag', 'c'),
         print_days: ('Inspect dates.', 'flag', 'd'),
         filter_channels: ('Filter by channels id (comma separated)', 'option', 'C'),
-        shift_time: ('Shift the start time dates','option','s'),
+        shift_time_onwards: ('Shift the start time dates onwards','option','s'),
+        shift_time_backwards: ('Shift the start time dates backwards','option','S'),
         utc: ('Normalize start time to UTC','flag','u'),
         *xmltv_files):
     """
@@ -76,6 +88,39 @@ def main(inspect: ('Print stats about the files instead of the resulting file','
     if filter_channels:
         filter_channels_list = [f.strip() for f in  filter_channels.split(',')]
 
+    time_delta = None
+    time = dict()
+    time['d'] = 0
+    time['M'] = 0
+    time['y'] = 0
+    time['w'] = 0
+    time['h'] = 0
+    time['m'] = 0
+    time['s'] = 0
+
+    if shift_time_onwards:
+        time_transformations = [t.strip() for t in shift_time_onwards.split(' ')]
+        for transform in time_transformations:
+            unit = transform[-1]
+            if unit in time:
+                time[unit] = int(transform[0:len(transform)-1])
+            else:
+                print_warning('Ignoring malformed time shift: ' + transform)
+
+    if shift_time_backwards:
+        time_transformations = [t.strip() for t in shift_time_backwards.split(' ')]
+        for transform in time_transformations:
+            unit = transform[-1]
+            if unit in time:
+                time[unit] = time[unit] - int(transform[0:len(transform)-1])
+            else:
+                print_warning('Ignoring malformed time shift: ' + transform)
+
+    # Colapse years into days
+    time['d'] = time['y']*365
+
+    time_delta = timedelta(time['d'], time['s'], 0, 0, time['m'], time ['h'], time['w'])
+
     # Input
 
     xmltv = ET.parse(xmltv_files[0]).getroot()
@@ -91,13 +136,23 @@ def main(inspect: ('Print stats about the files instead of the resulting file','
                 if channel_elem.attrib['id'] not in filter_channels_list:
                     xmltv.remove(channel_elem)
             else:
-                print('WARNING: channel element without id ' + channel_elem.tostring())
+                print_warning('channel element without id ' + channel_elem.tostring())
         for programme_elem in xmltv.findall('./programme'):
             if 'channel' in programme_elem.attrib:
                 if programme_elem.attrib['channel'] not in filter_channels_list:
                     xmltv.remove(programme_elem)
             else:
-                print('WARNING: programme element without id ' + programme_elem.tostring())
+                print_warning('programme element without id ' + programme_elem.tostring())
+
+
+    if shift_time_onwards or shift_time_backwards:
+        for programme_elem in xmltv.findall('./programme'):
+            start = parse_time(programme_elem.attrib['start'])
+            stop = parse_time(programme_elem.attrib['stop'])
+            start = start + time_delta
+            stop = stop + time_delta
+            programme_elem.attrib['start'] = encode_time(start)
+            programme_elem.attrib['stop'] = encode_time(stop)
 
     # Output
 
