@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 from yattag import indent
 import sys
+import pytz
 
 stats_accumulate = dict()
 channel_accumulate = dict()
@@ -158,6 +159,14 @@ def main(inspect: ('print stats about the files instead of the resulting file. E
             stop = stop + time_delta
             programme_elem.attrib['start'] = encode_time(start)
             programme_elem.attrib['stop'] = encode_time(stop)
+
+    if utc:
+        for programme_elem in xmltv.findall('./programme'):
+            start = parse_time(programme_elem.attrib['start'])
+            stop = parse_time(programme_elem.attrib['stop'])
+            programme_elem.attrib['start'] = encode_time(start.astimezone(pytz.utc))
+            programme_elem.attrib['stop'] = encode_time(stop.astimezone(pytz.utc))
+
 
     # Output
 
