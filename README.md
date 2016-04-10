@@ -1,0 +1,29 @@
+usage: xmltv-tool.py [-h] [-i] [-c] [-d] [-C FILTER_CHANNELS]
+                     [-s SHIFT_TIME_ONWARDS] [-S SHIFT_TIME_BACKWARDS] [-u]
+                     [xmltv_files [xmltv_files ...]]
+
+    Utility to inspect and manipulate XMLTV files.
+
+    If -i, -c or -d are used, a summary of the input files is printed. Otherwise a resulting processed XMLTV is printed.
+
+    Input files are merged into one before processing and printed as a valid merged XMLTV file.
+    
+
+positional arguments:
+  xmltv_files
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i, --inspect         Print stats about the files instead of the resulting
+                        file. Equivalent to -cd
+  -c, --print-channels  Inspect channels, implies -i.
+  -d, --print-days      Inspect dates, implies -i.
+  -C FILTER_CHANNELS, --filter-channels FILTER_CHANNELS
+                        Filter by channels id (comma separated)
+  -s SHIFT_TIME_ONWARDS, --shift-time-onwards SHIFT_TIME_ONWARDS
+                        Shift the start time dates onwards. Accepts time
+                        definitions as: 1d, 3M, 6y, 4w.
+  -S SHIFT_TIME_BACKWARDS, --shift-time-backwards SHIFT_TIME_BACKWARDS
+                        Shift the start time dates backwards. Accepts time
+                        definitions as --shift-time-onwards.
+  -u, --utc             Normalize start time to UTC
