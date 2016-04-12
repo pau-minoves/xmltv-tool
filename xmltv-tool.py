@@ -136,7 +136,6 @@ def main(inspect: ('print stats about the files instead of the resulting file. E
             if elem.tag == 'programme':
                 xmltv.append(elem)
             if elem.tag == 'channel':
-                print('channel!')
                 if not xmltv.findall('./channel[@id="{0}"]'.format(elem.attrib['id'])):
                     xmltv.append(elem)
 
