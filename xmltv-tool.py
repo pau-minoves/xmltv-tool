@@ -67,9 +67,22 @@ def do_print_channels(xmltv):
 
     # print("Total number of channels: " +  str(len(channel_accumulate)))
 
+def do_print_programs(xmltv):
+    programs = xmltv.findall('./programme')
+
+    for program in programs:
+        start = parse_time(program.attrib['start']).strftime('%a %Y-%m-%d %H:%M %z')
+        channel = program.attrib['channel']
+        title = program.find('title')
+        if title is None or title.text is None:
+            print('{0}  {1}'.format(str(start), channel))
+        else:
+            print('{0}  {1}\t - {2}'.format(str(start), channel, title.text))
+
 def main(inspect: ('print stats about the files instead of the resulting file. Equivalent to -cd','flag','i'),
         print_channels: ('inspect channels, implies -i.', 'flag', 'c'),
         print_days: ('inspect dates, implies -i.', 'flag', 'd'),
+        print_programs: ('inspect programs. implies -i', 'flag', 'p'),
         filter_channels: ('filter by channels id (comma separated)', 'option', 'C'),
         shift_time_onwards: ('shift the start time dates onwards. Accepts time definitions as: 1d, 3M, 6y, 4w.','option','s'),
         shift_time_backwards: ('shift the start time dates backwards. Accepts time definitions as --shift-time-onwards.','option','S'),
@@ -181,7 +194,10 @@ def main(inspect: ('print stats about the files instead of the resulting file. E
     if print_days:
             do_print_days(xmltv)
 
-    if not print_days and not print_channels:
+    if print_programs:
+            do_print_programs(xmltv)
+
+    if not print_days and not print_channels and not print_programs:
        print(ET.tostring(xmltv, pretty_print=True).decode('utf-8'))
 
 if  __name__ == '__main__':
