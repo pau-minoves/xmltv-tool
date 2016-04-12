@@ -67,9 +67,21 @@ def do_print_channels(xmltv):
 
     # print("Total number of channels: " +  str(len(channel_accumulate)))
 
+def do_print_programs(xmltv):
+    programs = xmltv.findall('./programme')
+
+    for program in programs:
+        start = program.attrib['start']
+        channel = program.attrib['channel']
+        title = program.get('title').text
+        if not title:
+            title = ''
+        print('{0}\t{1} - {2}'.format(start, channel, title))
+
 def main(inspect: ('print stats about the files instead of the resulting file. Equivalent to -cd','flag','i'),
         print_channels: ('inspect channels, implies -i.', 'flag', 'c'),
         print_days: ('inspect dates, implies -i.', 'flag', 'd'),
+        print_programs: ('inspect programs. implies -i', 'flag', 't'),
         filter_channels: ('filter by channels id (comma separated)', 'option', 'C'),
         shift_time_onwards: ('shift the start time dates onwards. Accepts time definitions as: 1d, 3M, 6y, 4w.','option','s'),
         shift_time_backwards: ('shift the start time dates backwards. Accepts time definitions as --shift-time-onwards.','option','S'),
@@ -180,6 +192,9 @@ def main(inspect: ('print stats about the files instead of the resulting file. E
 
     if print_days:
             do_print_days(xmltv)
+
+    if print_programs:
+            do_print_programs(xmltv)
 
     if not print_days and not print_channels:
        print(ET.tostring(xmltv, pretty_print=True).decode('utf-8'))
