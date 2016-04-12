@@ -1,4 +1,4 @@
-usage: xmltv-tool.py [-h] [-i] [-c] [-d] [-C FILTER_CHANNELS]
+usage: xmltv-tool.py [-h] [-i] [-c] [-d] [-p] [-C FILTER_CHANNELS]
                      [-s SHIFT_TIME_ONWARDS] [-S SHIFT_TIME_BACKWARDS] [-u]
                      [xmltv_files [xmltv_files ...]]
 
@@ -18,6 +18,7 @@ optional arguments:
                         file. Equivalent to -cd
   -c, --print-channels  inspect channels, implies -i.
   -d, --print-days      inspect dates, implies -i.
+  -p, --print-programs  inspect programs. implies -i
   -C FILTER_CHANNELS, --filter-channels FILTER_CHANNELS
                         filter by channels id (comma separated)
   -s SHIFT_TIME_ONWARDS, --shift-time-onwards SHIFT_TIME_ONWARDS
