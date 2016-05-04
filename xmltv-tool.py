@@ -1,6 +1,7 @@
 import plac
 #import xml.etree.ElementTree as ET
 from lxml import etree as ET
+#from lxml.etree import XMLParser
 from datetime import datetime
 from datetime import timedelta
 from yattag import indent
@@ -63,7 +64,7 @@ def do_print_channels(xmltv):
         accumulate_channel(channel.attrib['id'])
 
     for c in channel_accumulate:
-        print(str(c) + ': ' + str(channel_accumulate[c]))
+        print(c + ': ' + str(channel_accumulate[c]))
 
     # print("Total number of channels: " +  str(len(channel_accumulate)))
 
@@ -142,6 +143,7 @@ def main(inspect: ('print stats about the files instead of the resulting file. E
 
     # Input
 
+    # xmltv = ET.parse(xmltv_files[0], XMLParser(encoding='utf-8')).getroot()
     xmltv = ET.parse(xmltv_files[0]).getroot()
     for xmltv_file in xmltv_files[1:]:
         one_xmltv = ET.parse(xmltv_file).getroot()
