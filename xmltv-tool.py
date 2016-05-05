@@ -21,7 +21,7 @@ def parse_time(time):
 def encode_time(time):
     return datetime.strftime(time, '%Y%m%d%H%M%S %z')
 
-def accumulate_by_date(Y,M,D):
+def accumulate_by_date(Y,M,D, duration):
     if Y not in stats_accumulate:
         stats_accumulate[Y] = dict()
         stats_accumulate[Y][M] = dict()
@@ -29,10 +29,15 @@ def accumulate_by_date(Y,M,D):
         if M not in stats_accumulate[Y]:
             stats_accumulate[Y][M] = dict()
 
+    if not duration:
+        duration = timedelta(0)
+
     if D in stats_accumulate[Y][M]:
-        stats_accumulate[Y][M][D] += 1
+        stats_accumulate[Y][M][D] = stats_accumulate[Y][M][D] + duration
+        #print('Adding {0} duration into {1} {2} {3}, now is {4}'.format(duration, Y, M, D, stats_accumulate[Y][M][D]))
     else:
-        stats_accumulate[Y][M][D] = 1
+        stats_accumulate[Y][M][D] = duration
+        #print('Creating {0} duration into {1} {2} {3}, now is {4}'.format(duration, Y, M, D, stats_accumulate[Y][M][D]))
 
 def accumulate_channel(channel_id):
     if channel_id in channel_accumulate:
@@ -40,12 +45,33 @@ def accumulate_channel(channel_id):
     else:
         channel_accumulate[channel_id] = 1
 
+def get_program_title(program):
+    title = program.find('title')
+    if title is None:
+        return None
+    if title.text is None:
+        return ''
+    return title.text
+
+
+def get_program_duration(program):
+    stop = program.attrib['stop']
+    start = program.attrib['start']
+    if start and stop:
+        duration = parse_time(stop) - parse_time(start)
+        if duration.days < 0:
+            print_warning('Program without correct start / stop fields: ' +  get_program_title(program))
+            return 0
+        return duration
+    else:
+        return 0
+
 def do_print_days(xmltv):
     programs = xmltv.findall('./programme')
 
     for program in programs:
         start = parse_time(program.attrib['start'])
-        accumulate_by_date(start.year, start.month, start.day)
+        accumulate_by_date(start.year, start.month, start.day, get_program_duration(program))
 
     for Y in stats_accumulate:
         for M in stats_accumulate[Y]:
@@ -74,15 +100,15 @@ def do_print_programs(xmltv):
     for program in programs:
         start = parse_time(program.attrib['start']).strftime('%a %Y-%m-%d %H:%M %z')
         channel = program.attrib['channel']
-        title = program.find('title')
-        if title is None or title.text is None:
+        title = get_program_title(program)
+        if title is None:
             print('{0}  {1}'.format(str(start), channel))
         else:
-            print('{0}  {1}\t - {2}'.format(str(start), channel, title.text))
+            print('{0}  {1}\t - {2}'.format(str(start), channel, title))
 
 def main(inspect: ('print stats about the files instead of the resulting file. Equivalent to -cd','flag','i'),
         print_channels: ('inspect channels, implies -i.', 'flag', 'c'),
-        print_days: ('inspect dates, implies -i.', 'flag', 'd'),
+        print_days: ('inspect dates and per-day time coverage, implies -i.', 'flag', 'd'),
         print_programs: ('inspect programs. implies -i', 'flag', 'p'),
         filter_channels: ('filter by channels id (comma separated)', 'option', 'C'),
         shift_time_onwards: ('shift the start time dates onwards. Accepts time definitions as: 1d, 3M, 6y, 4w.','option','s'),

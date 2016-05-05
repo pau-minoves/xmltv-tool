@@ -17,7 +17,7 @@ optional arguments:
   -i, --inspect         print stats about the files instead of the resulting
                         file. Equivalent to -cd
   -c, --print-channels  inspect channels, implies -i.
-  -d, --print-days      inspect dates, implies -i.
+  -d, --print-days      inspect dates and per-day time coverage, implies -i.
   -p, --print-programs  inspect programs. implies -i
   -C FILTER_CHANNELS, --filter-channels FILTER_CHANNELS
                         filter by channels id (comma separated)
