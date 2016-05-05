@@ -106,6 +106,22 @@ def do_print_programs(xmltv):
         else:
             print('{0}  {1}\t - {2}'.format(str(start), channel, title))
 
+def xmltv_add_program(xmltv, program):
+    xmltv.append(program)
+
+xmltv_channels = dict()
+
+def xmltv_add_channel(xmltv, channel):
+
+    id = channel.attrib['id']
+
+    if id not in xmltv_channels:
+        xmltv_channels[id] = channel
+        xmltv.append(channel)
+
+    #if not xmltv.findall('./channel[@id="{0}"]'.format(elem.attrib['id'])):
+
+
 def main(inspect: ('print stats about the files instead of the resulting file. Equivalent to -cd','flag','i'),
         print_channels: ('inspect channels, implies -i.', 'flag', 'c'),
         print_days: ('inspect dates and per-day time coverage, implies -i.', 'flag', 'd'),
@@ -175,10 +191,9 @@ def main(inspect: ('print stats about the files instead of the resulting file. E
         one_xmltv = ET.parse(xmltv_file).getroot()
         for elem in one_xmltv:
             if elem.tag == 'programme':
-                xmltv.append(elem)
+                xmltv_add_program(xmltv, elem)
             if elem.tag == 'channel':
-                if not xmltv.findall('./channel[@id="{0}"]'.format(elem.attrib['id'])):
-                    xmltv.append(elem)
+                xmltv_add_channel(xmltv, elem)
 
     # Process
 
