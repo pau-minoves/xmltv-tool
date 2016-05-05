@@ -7,6 +7,7 @@ from datetime import timedelta
 from yattag import indent
 import sys
 import pytz
+import io
 
 stats_accumulate = dict()
 channel_accumulate = dict()
@@ -121,12 +122,13 @@ def xmltv_add_channel(xmltv, channel):
 
     #if not xmltv.findall('./channel[@id="{0}"]'.format(elem.attrib['id'])):
 
-
 def main(inspect: ('print stats about the files instead of the resulting file. Equivalent to -cd','flag','i'),
+        debug: ('print debug statements during the execution of the program','flag','D'),
         print_channels: ('inspect channels, implies -i.', 'flag', 'c'),
         print_days: ('inspect dates and per-day time coverage, implies -i.', 'flag', 'd'),
         print_programs: ('inspect programs. implies -i', 'flag', 'p'),
         filter_channels: ('filter by channels id (comma separated)', 'option', 'C'),
+        filter_channels_file: ('filter by channels id loading channels from the file (one per line)', 'option', 'f'),
         shift_time_onwards: ('shift the start time dates onwards. Accepts time definitions as: 1d, 3M, 6y, 4w.','option','s'),
         shift_time_backwards: ('shift the start time dates backwards. Accepts time definitions as --shift-time-onwards.','option','S'),
         utc: ('normalize start time to UTC','flag','u'),
@@ -139,9 +141,13 @@ def main(inspect: ('print stats about the files instead of the resulting file. E
     Input files are merged into one before processing and printed as a valid merged XMLTV file.
     """
 
-    filter_channels_list = None
+    filter_channels_list = list()
 
     # Parameters
+
+    if len(xmltv_files) == 0:
+        print_warning("No files provided. Exiting.")
+        return
 
     if inspect:
         print_channels = True
@@ -149,6 +155,21 @@ def main(inspect: ('print stats about the files instead of the resulting file. E
 
     if filter_channels:
         filter_channels_list = [f.strip() for f in  filter_channels.split(',')]
+
+    if filter_channels_file:
+        try:
+            with io.open(filter_channels_file, encoding='utf-8') as filter_channels_f:
+                for channel in filter_channels_f:
+                    filter_channels_list.append(channel.strip())
+        except FileNotFoundError:
+            print_warning('Channels filter file does not exist')
+            return
+        filter_channels=True
+
+    if debug and filter_channels:
+        print("Filtering channels:")
+        for channel in filter_channels_list:
+            print(channel)
 
     time_delta = None
     time = dict()
