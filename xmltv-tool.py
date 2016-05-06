@@ -4,6 +4,7 @@ from lxml import etree as ET
 #from lxml.etree import XMLParser
 from datetime import datetime
 from datetime import timedelta
+import calendar
 from yattag import indent
 import sys
 import pytz
@@ -77,7 +78,7 @@ def do_print_days(xmltv):
     for Y in stats_accumulate:
         for M in stats_accumulate[Y]:
             for D in stats_accumulate[Y][M]:
-                print('{0} {1} {2}: {3}'.format(Y,M,D, stats_accumulate[Y][M][D]))
+                print('{0} {1} {2} {3:02d}: {4}'.format(calendar.day_name[datetime(Y,M,D).weekday()][0:3], Y,M,D, stats_accumulate[Y][M][D]))
 
 def do_print_channels(xmltv):
     global channel_count
