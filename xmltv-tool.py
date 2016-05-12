@@ -96,17 +96,21 @@ def do_print_channels(xmltv):
 
     # print("Total number of channels: " +  str(len(channel_accumulate)))
 
-def do_print_programs(xmltv):
+def do_print_programs(xmltv, duration_instead_of_stop):
     programs = xmltv.findall('./programme')
 
     for program in programs:
         start = parse_time(program.attrib['start']).strftime('%a %Y-%m-%d %H:%M %z')
+        stop = parse_time(program.attrib['stop']).strftime('%a %Y-%m-%d %H:%M %z')
         channel = program.attrib['channel']
         title = get_program_title(program)
         if title is None:
             print('{0}  {1}'.format(str(start), channel))
         else:
-            print('{0}  {1}\t - {2}'.format(str(start), channel, title))
+            if duration_instead_of_stop:
+                print('{0}  {1}\t - {2} {3}'.format(str(start), channel, get_program_duration(program), title))
+            else:
+                print('{0}  {1} {2}\t - {3}'.format(str(start), stop, channel, title))
 
 def xmltv_add_program(xmltv, program):
     xmltv.append(program)
@@ -133,6 +137,7 @@ def main(inspect: ('print stats about the files instead of the resulting file. E
         shift_time_onwards: ('shift the start time dates onwards. Accepts time definitions as: 1d, 3M, 6y, 4w.','option','s'),
         shift_time_backwards: ('shift the start time dates backwards. Accepts time definitions as --shift-time-onwards.','option','S'),
         utc: ('normalize start time to UTC','flag','u'),
+        print_duration: ('print program duration instead of stop time when possible', 'flag', 't'),
         *xmltv_files):
     """
     Utility to inspect and manipulate XMLTV files.
@@ -260,7 +265,7 @@ def main(inspect: ('print stats about the files instead of the resulting file. E
             do_print_days(xmltv)
 
     if print_programs:
-            do_print_programs(xmltv)
+            do_print_programs(xmltv, print_duration)
 
     if not print_days and not print_channels and not print_programs:
        print(ET.tostring(xmltv, pretty_print=True).decode('utf-8'))
